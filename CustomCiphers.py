@@ -56,7 +56,7 @@ class RoundRobinCipher(CustomCipher):
         encrypted_data=''
         Encryptionlist=[]
         for partition in range(num_partitions):
-            with open('dividedfiles/'+str(plaintext)+'_'+str(partition)+'.txt', 'rb') as f:
+            with open('dividedfiles/'+'encrypted_'+str(plaintext)+'_'+str(partition)+'.txt', 'rb') as f:
                 data=f.read()
                 if partition%4==0:
                     encrypted_data=self.AES_cipher.encrypt(data)
@@ -70,7 +70,26 @@ class RoundRobinCipher(CustomCipher):
 
             f.close()
         return Encryptionlist
+    def decrypt(self, ciphertext):
+        
+        num_partitions=divideFile(ciphertext)
+        decrypted_Data=''
+        DecryptionList=[]
+        for partition in range(num_partitions):
+            with open('dividedfiles/'+str(ciphertext)+'_'+str(partition)+'.txt', 'rb') as f:
+                data=f.read()
+                if partition%4==0:
+                    decrypted_Data=self.AES_cipher.decrypt(data)
+                elif partition%4==1:
+                    decrypted_Data=self.TripleDes_cipher.decrypt(data)
+                elif partition%4==2:
+                    decrypted_Data=self.Cast_cipher.decrypt(data)
+                elif partition%4==3:
+                    decrypted_Data=self.BlowFish_cipher.decrypt(data)
+                DecryptionList.append(decrypted_Data)
 
+            f.close()
+        return DecryptionList
 
         
 
