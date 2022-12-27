@@ -2,6 +2,7 @@
 from KeysManager import *
 from Consts import *
 from FileManager import *
+from Crypto.Util.Padding import pad
 class CustomCipher():
     def __init__(self) :
         pass        
@@ -12,29 +13,40 @@ class CustomCipher():
     def decrypt(self,ciphertext):
         pass
 class MyAES(CustomCipher):
-    def __init__(self) :
-        self.cipher=AES.new(AES_KEY,AES.MODE_CFB)#AES with Cipher Feedback
+    def __init__(self,nonce=None) :
+        self.cipher=AES.new(AES_KEY,AES.MODE_EAX,nonce)#AES with Mode Encrypt and Authenticate and execute
         pass
     def encrypt(self,plaintext):
-        return self.cipher.encrypt(plaintext)
-    def decrypt(self,ciphertext):
+        self.__init__()
+        nonce=self.cipher.nonce
+        ciphertext,tag=self.cipher.encrypt_and_digest(plaintext)
+        return ciphertext,nonce
+    def decrypt(self,ciphertext,nonce):
+        self.__init__(nonce=nonce)
         return self.cipher.decrypt(ciphertext)
 class TripleDes(CustomCipher):
     def __init__(self) :
-        self.cipher=DES.new(DES_KEY_1,DES.MODE_CBC)
-        self.cipher2=DES.new(DES_KEY_2,DES.MODE_CBC)
+        # self.cipher=DES.new(DES_KEY_1,DES.MODE_CBC,INITIAL_VALUE)
+        # self.cipher2=DES.new(DES_KEY_2,DES.MODE_CBC,INITIAL_VALUE)
+        self.cipher=DES3.new(DES3_KEY,DES3.MODE_CFB,DES3_INITIAL_VALUE)
     def encrypt(self,plaintext):
-        return self.cipher.encrypt(self.cipher2.decrypt(self.cipher.encrypt(plaintext)))
+        self.__init__()
+        # plaintext=pad(bytes(plaintext),8)
+        # self.cipher.encrypt(self.cipher2.decrypt(self.cipher.encrypt(plaintext)))
+        return self.cipher.encrypt(plaintext)
     def decrypt(self,ciphertext):
-        return self.cipher.decrypt(self.cipher2.encrypt(self.cipher.decrypt(ciphertext)))
-
+        self.__init__()
+        # self.cipher.decrypt(self.cipher2.encrypt(self.cipher.decrypt(ciphertext)))
+        return self.cipher.decrypt(ciphertext)
 class MyCAST(CustomCipher):
     def __init__(self) :
         self.cipher=CAST.new(CAST_KEY,CAST.MODE_CFB)#CAST with Cipher Feedback
         pass
     def encrypt(self,plaintext):
+        self.__init__()
         return self.cipher.encrypt(plaintext)
     def decrypt(self,ciphertext):
+        self.__init__()
         return self.cipher.decrypt(ciphertext)
 class MyBlowFish(CustomCipher):
     def __init__(self) :
@@ -92,9 +104,19 @@ class RoundRobinCipher(CustomCipher):
         return DecryptionList
 
         
+myaes=TripleDes()
+with open('FULLTEXT01.pdf','rb') as f:
+    data=f.read()
+    encrdata=myaes.encrypt(data)
+    with open('encr.txt','wb') as f2:
+        f2.write(encrdata)
+    f2.close()
+f.close()
 
-rr_cipher=RoundRobinCipher()
-
-ll=rr_cipher.encrypt('FULLTEXT01.pdf')
-print('ll is ')
-print(ll)
+with open('encr.txt','rb') as f:
+    data=f.read()
+    encrdata=myaes.decrypt(data)
+    with open('decr.pdf','wb') as f2:
+        f2.write(encrdata)
+    f2.close()
+f.close()
