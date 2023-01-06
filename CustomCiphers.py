@@ -1,5 +1,5 @@
 
-from KeysManager import *
+from KeysManager import readkey,AES,DES3,Blowfish,CAST
 from Consts import *
 from FileManager import *
 from Crypto.Util.Padding import pad
@@ -14,7 +14,8 @@ class CustomCipher():
         pass
 class MyAES(CustomCipher):
     def __init__(self) :
-        self.cipher=AES.new(AES_KEY,AES.MODE_CFB,AES_INITIAL_VALUE)#AES with Mode Encrypt and Authenticate and execute
+        
+        self.cipher=AES.new(readkey('aes_key'),AES.MODE_CFB,readkey('AESIV'))#AES with Mode Encrypt and Authenticate and execute
         pass
     def encrypt(self,plaintext):
         self.__init__()
@@ -28,7 +29,7 @@ class TripleDes(CustomCipher):
     def __init__(self) :
         # self.cipher=DES.new(DES_KEY_1,DES.MODE_CBC,INITIAL_VALUE)
         # self.cipher2=DES.new(DES_KEY_2,DES.MODE_CBC,INITIAL_VALUE)
-        self.cipher=DES3.new(DES3_KEY,DES3.MODE_CFB,DES3_INITIAL_VALUE)
+        self.cipher=DES3.new(readkey('DES3_key'),DES3.MODE_CFB,readkey('DES3IV'))
     def encrypt(self,plaintext):
         self.__init__()
         # plaintext=pad(bytes(plaintext),8)
@@ -40,7 +41,7 @@ class TripleDes(CustomCipher):
         return self.cipher.decrypt(ciphertext)
 class MyCAST(CustomCipher):
     def __init__(self) :
-        self.cipher=CAST.new(CAST_KEY,CAST.MODE_CFB,CAST_INITIAL_VALUE)#CAST with Cipher Feedback
+        self.cipher=CAST.new(readkey('CAST_key'),CAST.MODE_CFB,readkey('CASTIV'))#CAST with Cipher Feedback
         pass
     def encrypt(self,plaintext):
         self.__init__()
@@ -50,7 +51,7 @@ class MyCAST(CustomCipher):
         return self.cipher.decrypt(ciphertext)
 class MyBlowFish(CustomCipher):
     def __init__(self) :
-        self.cipher=Blowfish.new(Blowfish_KEY,Blowfish.MODE_CFB)#Blowfish with Cipher Feedback
+        self.cipher=Blowfish.new(readkey('Blowfish_key'),Blowfish.MODE_CFB,readkey('BFIV'))#Blowfish with Cipher Feedback
         pass
     def encrypt(self,plaintext):
         return self.cipher.encrypt(plaintext)
@@ -112,28 +113,18 @@ class RoundRobinCipher(CustomCipher):
                     pass
 
             f.close()
+        # with open('decryptedfiles/'+str(ciphertext),'wb') as f:
+        #     for decr in DecryptionList:
+        #         f.write(decr)
+        f.close()
         return DecryptionList
 
         
 myaes=RoundRobinCipher()
-# with open('FULLTEXT01.pdf','rb') as f:
-#     data=f.read()
-#     encrdata=myaes.encrypt(data)
-#     with open('encr.txt','wb') as f2:
-#         f2.write(encrdata)
-#     f2.close()
-# f.close()
-
-# with open('encr.txt','rb') as f:
-#     data=f.read()
-#     encrdata=myaes.decrypt(data)
-#     with open('decr.pdf','wb') as f2:
-#         f2.write(encrdata)
-#     f2.close()
-# f.close()
 myaes.encrypt('FULLTEXT01.pdf')
 decrdata=myaes.decrypt('FULLTEXT01.pdf.txt')
 with open('roundrobindecryption.pdf','wb') as f:
     for data in decrdata:
         f.write(data)
 f.close()
+
