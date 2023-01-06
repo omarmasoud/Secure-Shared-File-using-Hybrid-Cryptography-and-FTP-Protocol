@@ -13,16 +13,16 @@ class CustomCipher():
     def decrypt(self,ciphertext):
         pass
 class MyAES(CustomCipher):
-    def __init__(self,nonce=None) :
-        self.cipher=AES.new(AES_KEY,AES.MODE_EAX,nonce)#AES with Mode Encrypt and Authenticate and execute
+    def __init__(self) :
+        self.cipher=AES.new(AES_KEY,AES.MODE_CFB,AES_INITIAL_VALUE)#AES with Mode Encrypt and Authenticate and execute
         pass
     def encrypt(self,plaintext):
         self.__init__()
-        nonce=self.cipher.nonce
-        ciphertext,tag=self.cipher.encrypt_and_digest(plaintext)
-        return ciphertext,nonce
-    def decrypt(self,ciphertext,nonce):
-        self.__init__(nonce=nonce)
+        # nonce=self.cipher.nonce
+        ciphertext=self.cipher.encrypt(plaintext)
+        return ciphertext
+    def decrypt(self,ciphertext):
+        self.__init__()
         return self.cipher.decrypt(ciphertext)
 class TripleDes(CustomCipher):
     def __init__(self) :
@@ -40,7 +40,7 @@ class TripleDes(CustomCipher):
         return self.cipher.decrypt(ciphertext)
 class MyCAST(CustomCipher):
     def __init__(self) :
-        self.cipher=CAST.new(CAST_KEY,CAST.MODE_CFB)#CAST with Cipher Feedback
+        self.cipher=CAST.new(CAST_KEY,CAST.MODE_CFB,CAST_INITIAL_VALUE)#CAST with Cipher Feedback
         pass
     def encrypt(self,plaintext):
         self.__init__()
@@ -64,59 +64,76 @@ class RoundRobinCipher(CustomCipher):
         self.Cast_cipher=MyCAST()
         self.BlowFish_cipher=MyBlowFish()
     def encrypt(self, plaintext):
-        num_partitions=divideFile(plaintext)
+        try:
+            num_partitions=divideFile(plaintext,directory='')
+        except:
+            pass
         encrypted_data=''
         Encryptionlist=[]
         for partition in range(num_partitions):
-            with open('dividedfiles/'+'encrypted_'+str(plaintext)+'_'+str(partition)+'.txt', 'rb') as f:
-                data=f.read()
-                if partition%4==0:
-                    encrypted_data=self.AES_cipher.encrypt(data)
-                elif partition%4==1:
-                    encrypted_data=self.TripleDes_cipher.encrypt(data)
-                elif partition%4==2:
-                    encrypted_data=self.Cast_cipher.encrypt(data)
-                elif partition%4==3:
-                    encrypted_data=self.BlowFish_cipher.encrypt(data)
-                Encryptionlist.append(encrypted_data)
+            with open('dividedfiles/'+str(plaintext)+'_'+str(partition)+'.txt', 'rb') as f:
+                try:
+                    data=f.read()
+                    if partition%3==0:
+                        encrypted_data=self.AES_cipher.encrypt(data)
+                    elif partition%3==1:
+                        encrypted_data=self.TripleDes_cipher.encrypt(data)
+                    elif partition%3==2:
+                        encrypted_data=self.Cast_cipher.encrypt(data)
+                
+                    Encryptionlist.append(encrypted_data)
+                except:
+                    pass
 
             f.close()
+        with open('encryptedfiles/'+str(plaintext)+".txt",'wb') as f:
+            for encr in Encryptionlist:
+                f.write(encr)
+        f.close()
         return Encryptionlist
     def decrypt(self, ciphertext):
         
-        num_partitions=divideFile(ciphertext)
+        num_partitions=divideFile(ciphertext,directory='encryptedfiles')
         decrypted_Data=''
         DecryptionList=[]
         for partition in range(num_partitions):
-            with open('dividedfiles/'+str(ciphertext)+'_'+str(partition)+'.txt', 'rb') as f:
+            with open('encryptedfiles/'+str(ciphertext), 'rb') as f:
                 data=f.read()
-                if partition%4==0:
-                    decrypted_Data=self.AES_cipher.decrypt(data)
-                elif partition%4==1:
-                    decrypted_Data=self.TripleDes_cipher.decrypt(data)
-                elif partition%4==2:
-                    decrypted_Data=self.Cast_cipher.decrypt(data)
-                elif partition%4==3:
-                    decrypted_Data=self.BlowFish_cipher.decrypt(data)
-                DecryptionList.append(decrypted_Data)
+                try:
+                    if partition%3==0:
+                        decrypted_Data=self.AES_cipher.decrypt(data)
+                    elif partition%3==1:
+                        decrypted_Data=self.TripleDes_cipher.decrypt(data)
+                    elif partition%3==2:
+                        decrypted_Data=self.Cast_cipher.decrypt(data)
+                  
+                    DecryptionList.append(decrypted_Data)
+                except:
+                    pass
 
             f.close()
         return DecryptionList
 
         
-myaes=TripleDes()
-with open('FULLTEXT01.pdf','rb') as f:
-    data=f.read()
-    encrdata=myaes.encrypt(data)
-    with open('encr.txt','wb') as f2:
-        f2.write(encrdata)
-    f2.close()
-f.close()
+myaes=RoundRobinCipher()
+# with open('FULLTEXT01.pdf','rb') as f:
+#     data=f.read()
+#     encrdata=myaes.encrypt(data)
+#     with open('encr.txt','wb') as f2:
+#         f2.write(encrdata)
+#     f2.close()
+# f.close()
 
-with open('encr.txt','rb') as f:
-    data=f.read()
-    encrdata=myaes.decrypt(data)
-    with open('decr.pdf','wb') as f2:
-        f2.write(encrdata)
-    f2.close()
+# with open('encr.txt','rb') as f:
+#     data=f.read()
+#     encrdata=myaes.decrypt(data)
+#     with open('decr.pdf','wb') as f2:
+#         f2.write(encrdata)
+#     f2.close()
+# f.close()
+myaes.encrypt('FULLTEXT01.pdf')
+decrdata=myaes.decrypt('FULLTEXT01.pdf.txt')
+with open('roundrobindecryption.pdf','wb') as f:
+    for data in decrdata:
+        f.write(data)
 f.close()

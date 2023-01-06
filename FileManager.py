@@ -1,12 +1,13 @@
 import os
 from Consts import FILE_CHUNK_SIZE
-def divideFile(filename):
+def divideFile(filename,directory='dividedfiles',outputdir='dividedfiles'):
     global FILE_CHUNK_SIZE
-     
+    if directory!='':
+        directory+='/'
     # Open the file for reading in binary mode
-    with open(filename, 'rb') as f:
+    with open(directory+filename, 'rb') as f:
         # Get the size of the file
-        file_size = os.path.getsize(filename)
+        file_size = os.path.getsize(directory+filename)
         # Calculate the number of partitions
         num_partitions = file_size // FILE_CHUNK_SIZE
         if file_size % FILE_CHUNK_SIZE != 0:
@@ -19,8 +20,9 @@ def divideFile(filename):
             # Read a chunk of the file
             chunk = f.read(FILE_CHUNK_SIZE)
             # Write the chunk to a new file
-            with open('dividedfiles/{}_{}.txt'.format(filename,i), 'wb') as partition:
+            with open(outputdir+'/{}_{}.txt'.format(filename,i), 'wb') as partition:
                 partition.write(chunk)
+    # print(num_partitions)
     return num_partitions
 
 def assembleFiles(myfile):
@@ -37,6 +39,6 @@ def assembleFiles(myfile):
                 # Write the contents to the new file
                 assembled.write(contents)
 
-assembleFiles('FULLTEXT01.pdf')
+#assembleFiles('FULLTEXT01.pdf')
 
-
+# divideFile("FULLTEXT01.txt",'encryptedfiles')
