@@ -63,12 +63,11 @@ class RoundRobinCipher(CustomCipher):
         self.AES_cipher=MyAES()
         self.TripleDes_cipher=TripleDes()
         self.Cast_cipher=MyCAST()
-        self.BlowFish_cipher=MyBlowFish()
+        # self.BlowFish_cipher=MyBlowFish()
     def encrypt(self, plaintext):
-        try:
-            num_partitions=divideFile(plaintext,directory='')
-        except:
-            pass
+        
+        num_partitions=divideFile(plaintext,directory='')
+       
         encrypted_data=''
         Encryptionlist=[]
         for partition in range(num_partitions):
@@ -107,7 +106,6 @@ class RoundRobinCipher(CustomCipher):
                         decrypted_Data=self.TripleDes_cipher.decrypt(data)
                     elif partition%3==2:
                         decrypted_Data=self.Cast_cipher.decrypt(data)
-                  
                     DecryptionList.append(decrypted_Data)
                 except:
                     pass
@@ -116,14 +114,14 @@ class RoundRobinCipher(CustomCipher):
         # with open('decryptedfiles/'+str(ciphertext),'wb') as f:
         #     for decr in DecryptionList:
         #         f.write(decr)
-        f.close()
+        # f.close()
         return DecryptionList
 
         
 myaes=RoundRobinCipher()
-myaes.encrypt('FULLTEXT01.pdf')
-decrdata=myaes.decrypt('FULLTEXT01.pdf.txt')
-with open('roundrobindecryption.pdf','wb') as f:
+myaes.encrypt('shafik.pdf')
+decrdata=myaes.decrypt('shafik.pdf.txt')
+with open('roundrobindecryptionfinals.pdf','wb') as f:
     for data in decrdata:
         f.write(data)
 f.close()
