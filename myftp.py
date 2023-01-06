@@ -16,12 +16,14 @@ def runFTPserver():
     status = call(command, shell=True)
 # force UTF-8 encoding 
 
-def upload(filename):
+def upload(filename,directory=''):
+    if directory!='':
+        directory+='/'
     ftp = ftplib.FTP()
     ftp.connect(FTP_HOST, FTP_PORT)
     ftp.login(FTP_USER, FTP_PASS)
     ftp.encoding = "utf-8"
-    with open(filename, "rb") as file:
+    with open(directory+filename, "rb") as file:
         ftp.storbinary(f"STOR {filename}", file)
     ftp.quit()
 

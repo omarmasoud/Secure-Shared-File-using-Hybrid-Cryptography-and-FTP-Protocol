@@ -118,11 +118,11 @@ class RoundRobinCipher(CustomCipher):
         return DecryptionList
 
         
-myaes=RoundRobinCipher()
-myaes.encrypt('shafik.pdf')
-decrdata=myaes.decrypt('shafik.pdf.txt')
-with open('roundrobindecryptionfinals.pdf','wb') as f:
-    for data in decrdata:
-        f.write(data)
-f.close()
+# myaes=RoundRobinCipher()
+# myaes.encrypt('FULLTEXT01.pdf')
+# decrdata=myaes.decrypt('FULLTEXT01.pdf.txt')
+# with open('roundrobindecryptionfinals.pdf','wb') as f:
+#     for data in decrdata:
+#         f.write(data)
+# f.close()
 
