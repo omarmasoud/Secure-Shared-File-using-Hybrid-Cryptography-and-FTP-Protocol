@@ -1,8 +1,12 @@
 from CustomCiphers import MyBlowFish,RoundRobinCipher
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES,DES,CAST,Blowfish,DES3
+
 from myftp import upload,serveFTP
 import json
 import os
 import chardet
+import base64
 keysdirectory='keys/'
 exporteddirectory='exportedkeys/'
 keys=['aes_key.pem','DES3_key.pem','CAST_key.pem']
@@ -32,25 +36,36 @@ def send(filepath):
     RRCipher.encrypt(filepath)
     
     files = os.listdir(exporteddirectory)
-    # upload(filepath+'.txt',directory='encryptedfiles')
+    #upload(filepath+'.txt',directory='encryptedfiles')
     with open('encryptedfiles/'+filepath+'.txt','rb') as f:
-        
-        response['file']=f.read()
+        data=f.read()
+        data=base64.b64encode(data).decode()
+        response['file']=data
     f.close()
     for file in files:
-        print(file)
         with open(exporteddirectory+file,'rb')as f:
-            response[file]=f.read()
+            data=f.read()
+            data=base64.b64encode(data).decode()
+            response[file]=data
+            
         f.close()
         #upload(file,directory=exporteddirectory)
     
     # print(response)
-    response=str(response).encode('utf-8')
+    
     with open(filepath+'.json','w') as f:
-        print('creating json')
         json.dump(response,f)
     f.close()
-    print(response['aes_key'])
+    upload(filename=filepath+'.json')
+
+    ############################## technique for reversing the encoding while reading on receiver##################
+    # with open(exporteddirectory+'aes_key.pem','rb') as f:
+    #     data=f.read()
+    # resp=base64.b64decode(response['aes_key.pem'])
+    # print(resp)
+    # print(data)
+    # bin=(resp==data)
+    # print(bin)
 
 #serveFTP()
 send('FULLTEXT01.pdf')
