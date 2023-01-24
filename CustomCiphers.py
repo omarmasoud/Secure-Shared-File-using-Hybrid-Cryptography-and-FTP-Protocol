@@ -79,6 +79,15 @@ class RoundRobinCipher(CustomCipher):
         self.Cast_cipher=MyCAST()#(ck,civ)
         # self.BlowFish_cipher=MyBlowFish()
     def encrypt(self, plaintext):
+        """
+        Round Robin Encrypt Functionality Goes as Follows:
+        1-divide a given file and know how many partitions as outcome of division
+        2-for each partition select either AES, DES3, CAST ciphers in order, 
+        such that next partition takes the cipher that follows the selected one in a circular selection manner
+        3-for each selected cipher we encrypt the selected partition and append its data in a temporary variable
+        4- at last we save the encrypted data at /encryptedfiles/filename.txt
+
+        """
         
         num_partitions=divideFile(plaintext,directory='')
        
@@ -107,7 +116,16 @@ class RoundRobinCipher(CustomCipher):
         f.close()
         return Encryptionlist
     def decrypt(self, ciphertext):
-        
+        """
+        Round Robin Decrypt Functionality Goes as Follows:
+        1-divide a given encrypted file and know how many partitions as outcome of division
+        2-for each partition select either AES, DES3, CAST ciphers in order, 
+        such that next partition takes the cipher that follows the selected one in a circular selection manner
+        3-for each selected cipher we decrypt the selected partition and append its data in a temporary variable
+        4- at last we return the decrypted data for user to use it as he wish
+
+        """
+    
         num_partitions=divideFile(ciphertext,directory='encryptedfiles')
         decrypted_Data=''
         DecryptionList=[]
