@@ -1,9 +1,12 @@
+from KeysManager import initkeys
+initkeys()
+
 from CustomCiphers import MyBlowFish,RoundRobinCipher
 from Crypto.Cipher import AES,DES,CAST,Blowfish,DES3
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import requests
-from KeysManager import initkeys
+
 
 from myftp import upload,serveFTP
 import json
@@ -113,7 +116,7 @@ def send(filepath):
     # bin=(resp==data)
     # print(bin)
 
-initkeys()
+
 send('MT.pdf')
 def receive(filename):
 

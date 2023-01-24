@@ -74,9 +74,9 @@ class RoundRobinCipher(CustomCipher):
     def __init__(self,aesk=readkey('aes_key'),aesiv=readkey('AESIV'),dk=readkey('DES3_key')
                 ,div=readkey('DES3IV'),ck=readkey('CAST_key'),civ=readkey('CASTIV')):
         
-        self.AES_cipher=MyAES()#(aesk,aesiv)
-        self.TripleDes_cipher=TripleDes()#(dk,div)
-        self.Cast_cipher=MyCAST()#(ck,civ)
+        self.AES_cipher=MyAES(aesk,aesiv)
+        self.TripleDes_cipher=TripleDes(dk,div)
+        self.Cast_cipher=MyCAST(ck,civ)
         # self.BlowFish_cipher=MyBlowFish()
     def encrypt(self, plaintext):
         """
