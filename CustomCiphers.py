@@ -13,56 +13,70 @@ class CustomCipher():
     def decrypt(self,ciphertext):
         pass
 class MyAES(CustomCipher):
-    def __init__(self) :
+    def __init__(self,k=readkey('aes_key'),iv=readkey('AESIV')) :
+        self.k=k
+        self.iv=iv
         
-        self.cipher=AES.new(readkey('aes_key'),AES.MODE_CFB,readkey('AESIV'))#AES with Mode Encrypt and Authenticate and execute
+        self.cipher=AES.new(k,AES.MODE_CFB,iv)#AES with Mode Encrypt and Authenticate and execute
         pass
     def encrypt(self,plaintext):
-        self.__init__()
+        self.__init__(k=self.k,iv=self.iv)
+        
         # nonce=self.cipher.nonce
         ciphertext=self.cipher.encrypt(plaintext)
         return ciphertext
     def decrypt(self,ciphertext):
-        self.__init__()
+        self.__init__(k=self.k,iv=self.iv)
+        
         return self.cipher.decrypt(ciphertext)
 class TripleDes(CustomCipher):
-    def __init__(self) :
+    def __init__(self,k=readkey('DES3_key'),iv=readkey('DES3IV')) :
         # self.cipher=DES.new(DES_KEY_1,DES.MODE_CBC,INITIAL_VALUE)
         # self.cipher2=DES.new(DES_KEY_2,DES.MODE_CBC,INITIAL_VALUE)
-        self.cipher=DES3.new(readkey('DES3_key'),DES3.MODE_CFB,readkey('DES3IV'))
+        self.k=k
+        self.iv=iv
+        self.cipher=DES3.new(k,DES3.MODE_CFB,iv)
     def encrypt(self,plaintext):
-        self.__init__()
+        self.__init__(k=self.k,iv=self.iv)
         # plaintext=pad(bytes(plaintext),8)
         # self.cipher.encrypt(self.cipher2.decrypt(self.cipher.encrypt(plaintext)))
         return self.cipher.encrypt(plaintext)
     def decrypt(self,ciphertext):
-        self.__init__()
+        self.__init__(k=self.k,iv=self.iv)
         # self.cipher.decrypt(self.cipher2.encrypt(self.cipher.decrypt(ciphertext)))
         return self.cipher.decrypt(ciphertext)
 class MyCAST(CustomCipher):
-    def __init__(self) :
-        self.cipher=CAST.new(readkey('CAST_key'),CAST.MODE_CFB,readkey('CASTIV'))#CAST with Cipher Feedback
+    def __init__(self,k=readkey('CAST_key'),iv=readkey('CASTIV')) :
+        self.cipher=CAST.new(k,CAST.MODE_CFB,iv)#CAST with Cipher Feedback
+        self.k=k
+        self.iv=iv
         pass
     def encrypt(self,plaintext):
-        self.__init__()
+        self.__init__(k=self.k,iv=self.iv)
         return self.cipher.encrypt(plaintext)
     def decrypt(self,ciphertext):
-        self.__init__()
+        self.__init__(k=self.k,iv=self.iv)
         return self.cipher.decrypt(ciphertext)
 class MyBlowFish(CustomCipher):
-    def __init__(self) :
-        self.cipher=Blowfish.new(readkey('Blowfish_key'),Blowfish.MODE_CFB,readkey('BFIV'))#Blowfish with Cipher Feedback
+    def __init__(self,k=readkey('Blowfish_key'),iv=readkey('BFIV')) :
+        self.cipher=Blowfish.new(k,Blowfish.MODE_CFB,iv)#Blowfish with Cipher Feedback
+        self.k=k
+        self.iv=iv
         pass
     def encrypt(self,plaintext):
+        self.__init__(k=self.k,iv=self.iv)
         return self.cipher.encrypt(plaintext)
     def decrypt(self,ciphertext):
+        self.__init__(k=self.k,iv=self.iv)
         return self.cipher.decrypt(ciphertext)
 
 class RoundRobinCipher(CustomCipher):
-    def __init__(self):
-        self.AES_cipher=MyAES()
-        self.TripleDes_cipher=TripleDes()
-        self.Cast_cipher=MyCAST()
+    def __init__(self,aesk=readkey('aes_key'),aesiv=readkey('AESIV'),dk=readkey('DES3_key')
+                ,div=readkey('DES3IV'),ck=readkey('CAST_key'),civ=readkey('CASTIV')):
+        
+        self.AES_cipher=MyAES()#(aesk,aesiv)
+        self.TripleDes_cipher=TripleDes()#(dk,div)
+        self.Cast_cipher=MyCAST()#(ck,civ)
         # self.BlowFish_cipher=MyBlowFish()
     def encrypt(self, plaintext):
         
@@ -76,6 +90,7 @@ class RoundRobinCipher(CustomCipher):
                     data=f.read()
                     if partition%3==0:
                         encrypted_data=self.AES_cipher.encrypt(data)
+                        
                     elif partition%3==1:
                         encrypted_data=self.TripleDes_cipher.encrypt(data)
                     elif partition%3==2:
@@ -118,11 +133,11 @@ class RoundRobinCipher(CustomCipher):
         return DecryptionList
 
         
-myaes=RoundRobinCipher()
-myaes.encrypt('MT.pdf')
-decrdata=myaes.decrypt('MT.pdf.txt')
-with open('roundrobindecryptionfinals.pdf','wb') as f:
-    for data in decrdata:
-        f.write(data)
-f.close()
+# myaes=RoundRobinCipher()
+# myaes.encrypt('MT.pdf')
+# decrdata=myaes.decrypt('FULLTEXT01.pdf.txt')
+# with open('MT11.pdf','wb') as f:
+#     for data in decrdata:
+#         f.write(data)
+# f.close()
 
