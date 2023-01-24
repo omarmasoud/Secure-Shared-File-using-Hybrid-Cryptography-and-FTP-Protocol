@@ -3,6 +3,7 @@ from flask_socketio import SocketIO,send, emit, join_room, leave_room
 from ServerFunctionality import *
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+import os
 
 app=Flask(__name__)
 @app.route('/')
@@ -30,11 +31,21 @@ def requestfile():
     e=payload['e']
     userpublickey=RSA.construct((n,e))
     PreprocessAndSend(filename,userpublickey)
-    file=json.load('../Server/exportedfiles/'+'e'+filename)
+    with open('../Server/exportedfiles/'+'e'+filename,'r') as f:
+        file=json.load(f)
     data={'file':file}
     return jsonify(data)
 
-    
+@app.route("/getfileslist" , methods = ['GET'])
+def getfileslist():
+    fileslst= os.listdir('../Server/files/')
+    return jsonify({
+        'files':fileslst
+    })
+    pass
+# response=requests.get('http://127.0.0.1:5000/getfileslist')
+# response=response.json()
+# fileslist=response['files']
 @app.route("/sendfile" , methods = ['POST'])
 def sendfile():
     payload = request.get_json()
